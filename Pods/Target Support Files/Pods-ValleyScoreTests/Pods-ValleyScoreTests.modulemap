@@ -1,0 +1,6 @@
+framework module Pods_ValleyScoreTests {
+  umbrella header "Pods-ValleyScoreTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
