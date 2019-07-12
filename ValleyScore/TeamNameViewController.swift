@@ -69,13 +69,12 @@ class TeamNameViewController: UIViewController, UITextFieldDelegate {
         
     }
     @IBAction func back(){
-        self.presentingViewController?.dismiss(animated: true, completion: {
-            self.presentingViewController?.navigationController?.popViewController(animated: true)
-        })
+       let index = navigationController!.viewControllers.count - 3
+        navigationController?.popToViewController(navigationController!.viewControllers[index],animated: true)
         //２つ前の画面に戻るコードを書きたい　← １つ前の画面に戻った
         try! realm.write {
             var tmpGameArray = realm.objects(Game.self).sorted{$0.createdBy > $1.createdBy}
-            realm.delete(tmpGameArray.first!)
+            realm.delete(game)
             //新しく作ったGameを破棄したい　← 一番最初の要素がは消去される
             print("deleted")
             print(gameArray)
@@ -120,7 +119,9 @@ class TeamNameViewController: UIViewController, UITextFieldDelegate {
         
         }
         
-        
+        let vc = navigationController?.viewControllers[(navigationController?.viewControllers.count)! - 2] as! DataViewController
+        vc.team0numArray = (game.team0?.player0.map {$0.player})!
+        vc.team1numArray = (game.team1?.player1.map {$0.player})!
         self.navigationController?.popViewController(animated: true)
         
     }

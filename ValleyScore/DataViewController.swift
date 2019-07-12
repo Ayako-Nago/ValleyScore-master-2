@@ -21,6 +21,7 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet var changingPlayerOut: UITextField!
     @IBOutlet var changingPlayerIn: UITextField!
     @IBOutlet var changingTeam: UIButton!
+    @IBOutlet var points: UIButton!
     @IBOutlet var changingServerTeam: UIButton!
     var pickerView: UIPickerView = UIPickerView()
     var team0numArray: [String] = []
@@ -29,6 +30,8 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var selectedServerTeam = false
     var changingPlayer = false
     var overViewArray = ["SE","SP","S"]
+    var point0: Int=0
+    var point1: Int=0
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
@@ -96,8 +99,12 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         selectedTeam.toggle()
         if selectedTeam == false{
             changingTeam.setTitle("A", for: .normal)
+            points.setTitle(String(point0), for: .normal)
+            point1 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
         }else{
             changingTeam.setTitle("B", for: .normal)
+            points.setTitle(String(point1), for: .normal)
+            point0 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) 
         }
         server.text = ""
         overView.text = ""
@@ -105,14 +112,37 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         changingPlayerOut.text = ""
         changingPlayerIn.text = ""
     }
-    @IBAction func point(){
+    @IBAction func set(){
+        let set = Set()
+        
+        try! realm.write {
+            gameArray[rowNum].set.append(set)
+        }
         
     }
+    @IBAction func point(){
+        if selectedTeam == false{
+            point0 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) + 1
+            points.setTitle(String(point0), for: .normal)
+        }else{
+            point1 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team1}.count ?? 0) + 1
+            points.setTitle(String(point1), for: .normal)
+        }
+    }
     @IBAction func time(){
-        
+        if selectedTeam == false{
+            
+        }else{
+            
+        }
     }
     @IBAction func changing(){
         changingPlayer.toggle()
+        if selectedTeam == false{
+            
+        }else{
+            
+        }
     }
     @IBAction func input(){
         changingPlayer = false
@@ -168,13 +198,13 @@ extension DataViewController:UIPickerViewDelegate, UIPickerViewDataSource{
             } else if overViewNumber.isFirstResponder{
                 overViewNumber.text = team0numArray[row]
             }else if changingPlayerIn.isFirstResponder{
-                if changingPlayer == false {
+                if changingPlayer == true {
                     changingPlayerIn.text = team0numArray[row]
                 }else{
                     changingPlayerIn.isUserInteractionEnabled = false
                 }
             } else if changingPlayerOut.isFirstResponder{
-                if changingPlayer == false {
+                if changingPlayer == true {
                     changingPlayerOut.text = team0numArray[row]
                 }else{
                     changingPlayerOut.isUserInteractionEnabled = false
