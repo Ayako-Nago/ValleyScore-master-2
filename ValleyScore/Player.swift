@@ -25,6 +25,7 @@ class Team0: Object{
 class Player0: Object{
     @objc dynamic var player = " "
 }
+
 class Team1: Object{
     @objc dynamic var team1Name = " "
     let player1 = List<Player1>()
@@ -38,8 +39,9 @@ class Set: Object{
 class Points: Object {
     @objc dynamic private var teamInt = 0
     @objc dynamic var teamPoint = 0
+    @objc dynamic var serverTeam = false
     @objc dynamic var server = 0
-    @objc dynamic var outline = 0
+    @objc dynamic var outline = " "
     @objc dynamic var player = 0
     
     var team: TeamType {
@@ -51,7 +53,7 @@ class Points: Object {
         }
     }
 }
-enum TeamType:Int{
+enum TeamType: Int{
     case Team0 = 0
     case Team1 = 1
     

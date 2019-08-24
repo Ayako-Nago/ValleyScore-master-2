@@ -47,7 +47,7 @@ class GameTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let second = storyboard?.instantiateViewController(withIdentifier: "second") as! DataViewController
-        second.rowNum = indexPath.row
+        second.game = gameArray[indexPath.row]
         
         navigationController?.pushViewController(second, animated: true)
         

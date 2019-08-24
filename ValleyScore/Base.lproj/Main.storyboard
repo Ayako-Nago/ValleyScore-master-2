@@ -334,7 +334,6 @@
         <!--Data View Controller-->
         <scene sceneID="Ypn-aa-UOZ">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tBY-tK-4AJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <viewController storyboardIdentifier="second" id="Gh4-bq-HPL" customClass="DataViewController" customModule="ValleyScore" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="D2x-fj-ltA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -345,7 +344,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="OX9-UM-kb5" customClass="DataViewCell" customModule="ValleyScore" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="DataCell" id="OX9-UM-kb5" customClass="DataViewCell" customModule="ValleyScore" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="OX9-UM-kb5" id="l8m-gn-EtP">
@@ -593,6 +592,7 @@
                         <segue destination="cgm-x1-y1Z" kind="presentation" id="22q-C5-K8n"/>
                     </connections>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tBY-tK-4AJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1928.8" y="982.75862068965523"/>
         </scene>

@@ -13,8 +13,9 @@ import RealmSwift
 class DataViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     lazy var realm = try! Realm()
-    var gameArray = [Game]()
-    var rowNum: Int = -1
+//    var gameArray = [Game]()
+//    var rowNum: Int = -1
+    var game: Game = Game()
     @IBOutlet var server: UITextField!
     @IBOutlet var overView: UITextField!
     @IBOutlet var overViewNumber: UITextField!
@@ -29,6 +30,7 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var selectedTeam = false
     var selectedServerTeam = false
     var changingPlayer = false
+    var timeTeam = false
     var overViewArray = ["SE","SP","S"]
     var point0: Int=0
     var point1: Int=0
@@ -38,6 +40,9 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "DataCell", for: indexPath) as! DataViewCell
+        
+        cell.team0Point.text = String(game.set[0].points[indexPath.row].teamPoint)
        return UITableViewCell()
     }
     
@@ -64,15 +69,15 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         
         
         self.changingPlayerIn.keyboardType = UIKeyboardType.numberPad
-        if rowNum == -1 {
-            let newData = Game()
-            try! realm.write(){
-                realm.add(newData)
-            }
-            rowNum = gameArray.endIndex
-        }
-        
-        gameArray = realm.objects(Game.self).sorted{$0.createdBy > $1.createdBy}
+//        if rowNum == -1 {
+//            let newData = Game()
+//            try! realm.write(){
+//                realm.add(newData)
+//            }
+//            rowNum = gameArray.endIndex
+//        }
+//
+//        gameArray = realm.objects(Game.self).sorted{$0.createdBy > $1.createdBy}
         
         
         
@@ -80,15 +85,15 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         tableView.dataSource = self
         // Do any additional setup after loading the view, typically from a nib.
         
-        if gameArray[rowNum].team0 == nil || gameArray[rowNum].team1 == nil{
+        if game.team0 == nil || game.team1 == nil{
             let team = storyboard?.instantiateViewController(withIdentifier: "team")as! TeamNameViewController
             
-            team.game = gameArray[rowNum]
+            team.game = game
             navigationController?.pushViewController(team, animated: true)
             
         }else{
-            team0numArray = (gameArray[rowNum].team0?.player0.map {$0.player})!
-            team1numArray = (gameArray[rowNum].team1?.player1.map {$0.player})!
+            team0numArray = (game.team0?.player0.map {$0.player})!
+            team1numArray = (game.team1?.player1.map {$0.player})!
             
         }
         
@@ -100,11 +105,11 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         if selectedTeam == false{
             changingTeam.setTitle("A", for: .normal)
             points.setTitle(String(point0), for: .normal)
-            point1 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
+            point1 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
         }else{
             changingTeam.setTitle("B", for: .normal)
             points.setTitle(String(point1), for: .normal)
-            point0 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) 
+            point0 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
         }
         server.text = ""
         overView.text = ""
@@ -114,26 +119,24 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     @IBAction func set(){
         let set = Set()
-        
         try! realm.write {
-            gameArray[rowNum].set.append(set)
+            game.set.append(set)
         }
         
     }
     @IBAction func point(){
         if selectedTeam == false{
-            point0 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) + 1
+            point0 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) + 1
             points.setTitle(String(point0), for: .normal)
         }else{
-            point1 = (gameArray[rowNum].set.last?.points.filter {$0.team == TeamType.Team1}.count ?? 0) + 1
+            point1 = (game.set.last?.points.filter {$0.team == TeamType.Team1}.count ?? 0) + 1
             points.setTitle(String(point1), for: .normal)
         }
     }
     @IBAction func time(){
+        timeTeam = true
         if selectedTeam == false{
-            
         }else{
-            
         }
     }
     @IBAction func changing(){
@@ -146,11 +149,33 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     @IBAction func input(){
         changingPlayer = false
+        timeTeam = false
         server.text = ""
         overView.text = ""
         overViewNumber.text = ""
         changingPlayerOut.text = ""
         changingPlayerIn.text = ""
+        
+        let set: Set = Set()
+        let points: Points = Points()
+        points.team = selectedTeam ? TeamType.Team1 : TeamType.Team0
+        if selectedTeam == false{
+            points.teamPoint = point0
+        }else{
+            points.teamPoint = point1
+        }
+        points.server = Int(server.text ?? "") ?? 0
+        points.outline = overView.text ?? ""
+        points.player = Int(overViewNumber.text ?? "") ?? 0
+        points.serverTeam = selectedServerTeam
+
+        set.points.append(points)
+        game.set.append(set)
+        try! realm.write {
+            realm.add(game)
+            print(game)
+        }
+//        gameArray.append(game)
     }
     @IBAction func serverTeam(){
         selectedServerTeam.toggle()
@@ -161,6 +186,8 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
         server.text = ""
     }
+    
+    
 }
 extension DataViewController:UIPickerViewDelegate, UIPickerViewDataSource{
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

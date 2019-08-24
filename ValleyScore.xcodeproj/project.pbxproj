@@ -156,7 +156,6 @@
 			isa = PBXGroup;
 			children = (
 				C2EFEB5B228593F700EF776A /* ValleyScore */,
-				C2EFEB702285940500EF776A /* ValleyScoreTests */,
 				C2EFEB7B2285940500EF776A /* ValleyScoreUITests */,
 				C2EFEB5A228593F700EF776A /* Products */,
 				EA5BB78DF5746DF4919FB690 /* Pods */,
@@ -190,8 +189,9 @@
 				C2FD7DF72298019800AA8190 /* DataViewController.swift */,
 				C28D4F1222B39A3B00DFEA01 /* iPhone 6-7-8 – 1 23.58.49.png */,
 				C2A8B4D822A1262C00C5F199 /* NavigationController.swift */,
-				C2D3F3E722AA5D470097F4A1 /* Font */,
 				C2CD4A1F22BD186F00E4B6CF /* DataViewCell.swift */,
+				C2EFEB702285940500EF776A /* ValleyScoreTests */,
+				C2D3F3E722AA5D470097F4A1 /* Font */,
 			);
 			path = ValleyScore;
 			sourceTree = "<group>";

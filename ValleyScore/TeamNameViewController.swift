@@ -116,10 +116,12 @@ class TeamNameViewController: UIViewController, UITextFieldDelegate {
             game.team1?.player1[5].player = team1Center2TextField.text ?? ""
             game.team1?.player1.append(Player1())
             game.team1?.player1[6].player = team1LibeloTextField.text ?? ""
+            realm.add(game)
         
         }
         
         let vc = navigationController?.viewControllers[(navigationController?.viewControllers.count)! - 2] as! DataViewController
+        vc.game = game
         vc.team0numArray = (game.team0?.player0.map {$0.player})!
         vc.team1numArray = (game.team1?.player1.map {$0.player})!
         self.navigationController?.popViewController(animated: true)
