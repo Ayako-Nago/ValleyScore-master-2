@@ -15,7 +15,7 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     lazy var realm = try! Realm()
 //    var gameArray = [Game]()
 //    var rowNum: Int = -1
-    var game: Game = Game()
+    var game: Game?
     @IBOutlet var server: UITextField!
     @IBOutlet var overView: UITextField!
     @IBOutlet var overViewNumber: UITextField!
@@ -31,19 +31,47 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     var selectedServerTeam = false
     var changingPlayer = false
     var timeTeam = false
-    var overViewArray = ["SE","SP","S"]
+    var overViewArray = ["B","SP","S","T","F"]
     var point0: Int=0
     var point1: Int=0
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        if game == nil{
+            return 0
+        }
+        if game?.set.isEmpty ?? false{
+            return 0
+        }
+        return game?.set[0].points.count ?? 0
     }
    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DataCell", for: indexPath) as! DataViewCell
         
-        cell.team0Point.text = String(game.set[0].points[indexPath.row].teamPoint)
-       return UITableViewCell()
+        if game?.set[0].points[indexPath.row].team == TeamType.Team0{
+            cell.team0Point.text = String(game?.set[0].points[indexPath.row].teamPoint ?? 0)
+            cell.team0OverView.text = game?.set[0].points[indexPath.row].outline
+            cell.team0OverViewNumber.text = String(game?.set[0].points[indexPath.row].player ?? 0)
+            cell.team1Point.text = ""
+            cell.team1OverView.text = ""
+            cell.team1OverViewNumber.text = ""
+        }else{
+            cell.team1Point.text = String(game?.set[0].points[indexPath.row].teamPoint ?? 0)
+            cell.team1OverView.text = game?.set[0].points[indexPath.row].outline
+            cell.team1OverViewNumber.text = String(game?.set[0].points[indexPath.row].player ?? 0)
+            cell.team0Point.text = ""
+            cell.team0OverView.text = ""
+            cell.team0OverViewNumber.text = ""
+        }
+        if game?.set[0].points[indexPath.row].serverTeam == false{
+            cell.team0Server.text = String(game?.set[0].points[indexPath.row].server ?? 0)
+            cell.team1Server.text = ""
+        }else{
+            cell.team1Server.text = String(game?.set[0].points[indexPath.row].server ?? 0)
+            cell.team0Server.text = ""
+        }
+        
+       return cell
     }
     
     
@@ -68,6 +96,7 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         changingPlayerOut.inputView = pickerView
         
         
+        
         self.changingPlayerIn.keyboardType = UIKeyboardType.numberPad
 //        if rowNum == -1 {
 //            let newData = Game()
@@ -85,15 +114,16 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         tableView.dataSource = self
         // Do any additional setup after loading the view, typically from a nib.
         
-        if game.team0 == nil || game.team1 == nil{
+        if game == nil{
             let team = storyboard?.instantiateViewController(withIdentifier: "team")as! TeamNameViewController
             
-            team.game = game
+            
+            team.game = Game()
             navigationController?.pushViewController(team, animated: true)
             
         }else{
-            team0numArray = (game.team0?.player0.map {$0.player})!
-            team1numArray = (game.team1?.player1.map {$0.player})!
+            team0numArray = (game?.team0?.player0.map {$0.player})!
+            team1numArray = (game?.team1?.player1.map {$0.player})!
             
         }
         
@@ -105,11 +135,11 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         if selectedTeam == false{
             changingTeam.setTitle("A", for: .normal)
             points.setTitle(String(point0), for: .normal)
-            point1 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
+            point1 = (game?.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
         }else{
             changingTeam.setTitle("B", for: .normal)
             points.setTitle(String(point1), for: .normal)
-            point0 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
+            point0 = (game?.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0)
         }
         server.text = ""
         overView.text = ""
@@ -120,16 +150,15 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBAction func set(){
         let set = Set()
         try! realm.write {
-            game.set.append(set)
+            game?.set.append(set)
         }
-        
     }
     @IBAction func point(){
         if selectedTeam == false{
-            point0 = (game.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) + 1
+            point0 = (game?.set.last?.points.filter {$0.team == TeamType.Team0}.count ?? 0) + 1
             points.setTitle(String(point0), for: .normal)
         }else{
-            point1 = (game.set.last?.points.filter {$0.team == TeamType.Team1}.count ?? 0) + 1
+            point1 = (game?.set.last?.points.filter {$0.team == TeamType.Team1}.count ?? 0) + 1
             points.setTitle(String(point1), for: .normal)
         }
     }
@@ -148,15 +177,14 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
     @IBAction func input(){
-        changingPlayer = false
-        timeTeam = false
-        server.text = ""
-        overView.text = ""
-        overViewNumber.text = ""
-        changingPlayerOut.text = ""
-        changingPlayerIn.text = ""
         
-        let set: Set = Set()
+        if game?.set.isEmpty == true{
+            let set: Set = Set()
+            try! realm .write {
+                game?.set.append(set)
+                realm.add(game!)
+            }
+        }
         let points: Points = Points()
         points.team = selectedTeam ? TeamType.Team1 : TeamType.Team0
         if selectedTeam == false{
@@ -169,12 +197,23 @@ class DataViewController: UIViewController, UITableViewDataSource, UITableViewDe
         points.player = Int(overViewNumber.text ?? "") ?? 0
         points.serverTeam = selectedServerTeam
 
-        set.points.append(points)
-        game.set.append(set)
+        
+        
         try! realm.write {
-            realm.add(game)
-            print(game)
+//            set.points.append(points)
+            game?.set[0].points.append(points)
+            realm.add(game!)
+            print(game!)
         }
+        tableView.reloadData()
+        changingPlayer = false
+        timeTeam = false
+        server.text = ""
+        overView.text = ""
+        overViewNumber.text = ""
+        changingPlayerOut.text = ""
+        changingPlayerIn.text = ""
+        
 //        gameArray.append(game)
     }
     @IBAction func serverTeam(){
@@ -197,72 +236,56 @@ extension DataViewController:UIPickerViewDelegate, UIPickerViewDataSource{
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if overView.isFirstResponder{
             return overViewArray.count
-        }else{
+        }else if overViewNumber.isFirstResponder{
             if selectedTeam == false{
                 return team0numArray.count
             }else{
                 return team1numArray.count
             }
+        }else if server.isFirstResponder{
+            if selectedServerTeam == false{
+                return team0numArray.count
+            }else{
+                return team1numArray.count
+            }
         }
+        return 0
     }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if overView.isFirstResponder{
             return overViewArray[row]
-        }else{
+        }else if overViewNumber.isFirstResponder{
             if selectedTeam == false{
                 return team0numArray[row]
             }else{
                 return team1numArray[row]
             }
+        }else if server.isFirstResponder{
+            if selectedServerTeam == false{
+                return team0numArray[row]
+            }else{
+                return team1numArray[row]
+            }
         }
+        return String(0)
     }
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if selectedTeam == false{
-            if server.isFirstResponder {
-                self.server.text = team0numArray[row]
-            } else if overView.isFirstResponder {
-                overView.text = overViewArray[row]
-            } else if overViewNumber.isFirstResponder{
+        if overView.isFirstResponder{
+            overView.text = overViewArray[row]
+        }else if overViewNumber.isFirstResponder{
+            if selectedTeam == false{
                 overViewNumber.text = team0numArray[row]
-            }else if changingPlayerIn.isFirstResponder{
-                if changingPlayer == true {
-                    changingPlayerIn.text = team0numArray[row]
-                }else{
-                    changingPlayerIn.isUserInteractionEnabled = false
-                }
-            } else if changingPlayerOut.isFirstResponder{
-                if changingPlayer == true {
-                    changingPlayerOut.text = team0numArray[row]
-                }else{
-                    changingPlayerOut.isUserInteractionEnabled = false
-                }
+            }else{
+                overViewNumber.text = team1numArray[row]
             }
-        }else{
-            if server.isFirstResponder {
-                self.server.text = team1numArray[row]
-            } else if overView.isFirstResponder {
-                overView.text = overViewArray[row]
-            } else if overViewNumber.isFirstResponder{
-                    overViewNumber.text = team1numArray[row]
-            }else if changingPlayerIn.isFirstResponder{
-                if changingPlayer == false {
-                    changingPlayerIn.text = team1numArray[row]
-                }else{
-                    changingPlayerIn.isUserInteractionEnabled = false
-                }
-            } else if changingPlayerOut.isFirstResponder{
-                if changingPlayer == false {
-                    changingPlayerOut.text = team1numArray[row]
-                }else{
-                    changingPlayerOut.isUserInteractionEnabled = false
-                }
+        }else if server.isFirstResponder{
+            if selectedServerTeam == false{
+                server.text = team0numArray[row]
+            }else{
+                server.text = team1numArray[row]
             }
         }
     }
-    
-    
-
-    
 }
 
 

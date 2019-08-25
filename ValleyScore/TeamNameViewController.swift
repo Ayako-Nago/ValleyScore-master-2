@@ -36,6 +36,7 @@ class TeamNameViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         self.team0Left1TextField.keyboardType = UIKeyboardType.numberPad
         self.team0Left2TextField.keyboardType = UIKeyboardType.numberPad
         self.team0Right1TextField.keyboardType = UIKeyboardType.numberPad
@@ -71,14 +72,7 @@ class TeamNameViewController: UIViewController, UITextFieldDelegate {
     @IBAction func back(){
        let index = navigationController!.viewControllers.count - 3
         navigationController?.popToViewController(navigationController!.viewControllers[index],animated: true)
-        //２つ前の画面に戻るコードを書きたい　← １つ前の画面に戻った
-        try! realm.write {
-            var tmpGameArray = realm.objects(Game.self).sorted{$0.createdBy > $1.createdBy}
-            realm.delete(game)
-            //新しく作ったGameを破棄したい　← 一番最初の要素がは消去される
-            print("deleted")
-            print(gameArray)
-        }
+        
     }
     @IBAction func end(){
         
